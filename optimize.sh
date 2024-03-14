@@ -4,6 +4,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Suffix for non-Intel built artifacts
+MACHINE=$(uname -m)
+SUFFIX=${MACHINE#x86_64}
+SUFFIX=${SUFFIX:+-$SUFFIX}
+
 export PATH="$PATH:/root/.cargo/bin"
 mkdir -p artifacts
 
@@ -16,7 +21,7 @@ for i in $(cargo metadata --no-deps --format-version 1 | jq -r '.workspace_membe
                 echo "Optimizing $binary…"
                 wasm-opt -Os --signext-lowering                         \
 			"target/wasm32-unknown-unknown/release/$binary" \
-			-o "artifacts/$binary"
+			-o "artifacts/${binary}${SUFFIX}"
         fi
 done
 
